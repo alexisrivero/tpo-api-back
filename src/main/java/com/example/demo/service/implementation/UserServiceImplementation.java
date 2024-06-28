@@ -5,8 +5,12 @@ import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.persistence.model.User;
 import com.example.demo.persistence.repository.UserRepository;
 import com.example.demo.service.UserService;
+import com.example.demo.utils.JwtUtil;
+import com.example.demo.utils.UserPrincipal;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -16,6 +20,8 @@ import java.util.Optional;
 public class UserServiceImplementation implements UserService {
 
     private final UserRepository userRepository;
+    private final JwtUtil jwtUtil;
+
 
     @Override
     @Transactional
@@ -65,17 +71,6 @@ public class UserServiceImplementation implements UserService {
     }
 
     @Override
-    public String login(String email, String password) {
-        Optional<User> optionalUser = userRepository.findByEmail(email);
-
-        if (optionalUser.isPresent() && optionalUser.get().getPassword().equals(password)) {
-            return "User logged in successfully";
-        } else {
-            throw new RuntimeException("Invalid email or password");
-        }
-    }
-
-    @Override
     public User getUser(String email) {
         User foundUser = this.foundUser(email);
         return foundUser;
@@ -84,8 +79,7 @@ public class UserServiceImplementation implements UserService {
     private User foundUser (String email)
     {
         Optional<User> user = userRepository.findByEmail(email);
-        if (user.isEmpty())
-        {
+        if (user.isEmpty()) {
             throw new ResourceNotFoundException("We could not find a user with the given email");
         }
         return user.get();
@@ -108,4 +102,47 @@ public class UserServiceImplementation implements UserService {
             throw new ResourceNotFoundException("User not found with id: " + id);
         }
     }
+
+//    @Override
+//    public String login(String email, String password) {
+//        Optional<User> optionalUser = userRepository.findByEmail(email);
+//
+//        if (optionalUser.isPresent() && optionalUser.get().getPassword().equals(password)) {
+//            return jwtUtil.generateToken(email);
+//        } else {
+//            throw new RuntimeException("Invalid email or password");
+//        }
+//    }
+
+    @Override
+    @Transactional
+    public String login(String email, String password) {
+        Optional<User> optionalUser = userRepository.findByEmail(email);
+
+        if (optionalUser.isEmpty()) {
+            throw new RuntimeException("Invalid email or password");
+            } else if (optionalUser.get().getPassword().equals(password)){
+            User user = optionalUser.get();
+            System.out.println("-----------USER PASSWORD----------" + user.getPassword());
+            System.out.println("-----------REQUEST PASSWORD--------" + password);
+            System.out.println("TRUE O FALSE" + user.getPassword().equals(password));
+            }
+
+        return jwtUtil.generateToken(email);
+    }
+
+
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        Optional<User> optionalUser = userRepository.findByEmail(email);
+
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            return new UserPrincipal(user);
+        } else {
+            throw new UsernameNotFoundException("User not found with email: " + email);
+        }
+    }
+
+
 }

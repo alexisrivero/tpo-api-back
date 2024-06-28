@@ -2,6 +2,8 @@ package com.example.demo.service;
 
 import com.example.demo.persistence.model.User;
 import jakarta.transaction.Transactional;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 public interface UserService {
     User getUser(String email);
@@ -15,4 +17,5 @@ public interface UserService {
 
     User getUserById(long id);
 
+    UserDetails loadUserByUsername(String email) throws UsernameNotFoundException;
 }

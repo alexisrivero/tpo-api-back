@@ -3,6 +3,8 @@ package com.example.demo.web.controller;
 
 import com.example.demo.persistence.model.User;
 import com.example.demo.service.implementation.UserServiceImplementation;
+import com.example.demo.web.DTO.LoginRequest;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -54,6 +56,13 @@ public class UserController {
         String newPassword = userServiceImplementation.resetPassword(user);
 
         return ResponseEntity.ok("Your new password is: " + newPassword);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<String> login(@RequestBody @Valid LoginRequest loginRequest) {
+        String token = userServiceImplementation.login(loginRequest.getEmail(), loginRequest.getPassword());
+        System.out.println("TOKEN " + token);
+        return ResponseEntity.ok(token);
     }
 
 }
