@@ -56,18 +56,4 @@ public class UserController {
         return ResponseEntity.ok("Your new password is: " + newPassword);
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody Map<String, String> credentials) {
-        String email = credentials.get("email");
-        String password = credentials.get("password");
-
-        try {
-            User user = userServiceImplementation.authenticateUser(email, password);
-            // Genera un token de sesión si es necesario, o simplemente devuelve un mensaje de éxito
-            return ResponseEntity.ok("User logged in successfully");
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password");
-        }
-    }
-
 }

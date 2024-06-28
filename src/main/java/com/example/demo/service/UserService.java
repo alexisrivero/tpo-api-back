@@ -15,6 +15,4 @@ public interface UserService {
 
     User getUserById(long id);
 
-    User authenticateUser(String username, String password);
-
 }

@@ -108,14 +108,4 @@ public class UserServiceImplementation implements UserService {
             throw new ResourceNotFoundException("User not found with id: " + id);
         }
     }
-
-    @Override
-    public User authenticateUser(String username, String password) {
-        Optional<User> optionalUser = userRepository.findByUsername(username);
-        if (optionalUser.isPresent() && optionalUser.get().getPassword().equals(password)) {
-            return optionalUser.get();
-        } else {
-            throw new RuntimeException("Invalid email or password");
-        }
-    }
 }
